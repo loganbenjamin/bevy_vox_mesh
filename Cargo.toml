@@ -4,7 +4,7 @@ description = "A bevy engine plugin for loading magica voxel files directly in b
 license = "MIT"
 version = "0.3.0"
 repository = "https://github.com/Game4all/bevy_vox_mesh"
-authors = ["Lucas A. <game4allyt@gmail.com>"]
+authors = ["Lucas A. <game4allyt@gmail.com>", "Arc-blroth <45273859+Arc-blroth@users.noreply.github.com>"]
 edition = "2021"
 exclude = ["assets/*"]
 
@@ -17,6 +17,7 @@ ndshape = "0.2.0"
 block-mesh = { git = "https://github.com/bonsairobo/block-mesh-rs" }
 ndcopy = "0.2.0"
 anyhow = "1.0.38"
+num-integer = "0.1"
 
 [dev-dependencies]
 bevy = "0.6"

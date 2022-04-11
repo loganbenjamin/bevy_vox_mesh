@@ -2,8 +2,6 @@ use bevy::prelude::*;
 use bevy_vox_mesh::VoxMeshPlugin;
 use std::f32::consts::PI;
 
-mod pipeline;
-
 fn main() {
     App::default()
         .add_plugins(DefaultPlugins)
@@ -38,7 +36,7 @@ fn setup(
         transform: Transform::from_scale((0.01, 0.01, 0.01).into())
             * Transform::from_rotation(Quat::from_axis_angle(Vec3::Y, PI)),
         mesh: assets.load("chicken.vox"),
-        material: stdmats.add(StandardMaterial::default()),
+        material: assets.load("chicken.vox#material"),
         ..Default::default()
     });
 }
