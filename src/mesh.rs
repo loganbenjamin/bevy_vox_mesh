@@ -1,39 +1,11 @@
 use bevy::render::{
     mesh::{Indices, Mesh, VertexAttributeValues},
-    render_resource::{Extent3d, PrimitiveTopology, TextureDimension, TextureFormat},
-    texture::Image,
+    render_resource::PrimitiveTopology,
 };
 use block_mesh::{greedy_quads, GreedyQuadsBuffer, QuadCoordinateConfig};
 use ndshape::{Shape, Shape3u32};
-use num_integer::Roots;
 
 use crate::voxel::Voxel;
-
-pub(crate) fn palette_to_texture(palette: &[[u8; 4]]) -> (Image, u8) {
-    let texture_width = palette.len().sqrt().next_power_of_two();
-    let texture_size = texture_width * texture_width;
-    let texture_data = {
-        let mut data = Vec::with_capacity(texture_size * 4);
-        for color in palette {
-            data.extend_from_slice(color);
-        }
-        for _ in palette.len()..texture_size {
-            data.extend_from_slice(&[0; 4]);
-        }
-        data
-    };
-    let texture = Image::new(
-        Extent3d {
-            width: texture_width as u32,
-            height: texture_width as u32,
-            depth_or_array_layers: 1,
-        },
-        TextureDimension::D2,
-        texture_data,
-        TextureFormat::Rgba8UnormSrgb,
-    );
-    (texture, texture_width as u8)
-}
 
 pub(crate) fn mesh_model(
     buffer_shape: Shape3u32,

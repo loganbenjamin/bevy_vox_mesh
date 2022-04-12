@@ -35,6 +35,7 @@ mod loader;
 #[doc(inline)]
 use loader::VoxLoader;
 
+mod material;
 mod mesh;
 mod voxel;
 

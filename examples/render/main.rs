@@ -39,4 +39,15 @@ fn setup(
         material: assets.load("chicken.vox#material"),
         ..Default::default()
     });
+
+    commands.spawn_bundle(PbrBundle {
+        transform: Transform {
+            translation: Vec3::new(0.0, 0.0, 1.0),
+            scale: Vec3::splat(0.16),
+            ..Default::default()
+        },
+        mesh: assets.load("materials.vox"),
+        material: assets.load("materials.vox#material"),
+        ..Default::default()
+    });
 }

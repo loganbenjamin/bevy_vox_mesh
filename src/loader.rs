@@ -1,6 +1,5 @@
 use anyhow::{anyhow, Error};
 use bevy::asset::{AssetLoader, LoadContext, LoadedAsset};
-use bevy::pbr::StandardMaterial;
 use block_mesh::QuadCoordinateConfig;
 
 /// An asset loader capable of loading models in `.vox` files as usable [`bevy::render::mesh::Mesh`]es.
@@ -48,16 +47,9 @@ impl VoxLoader {
             .iter()
             .map(|color| color.to_le_bytes())
             .collect();
-        let (palette_texture, palette_texture_width) = crate::mesh::palette_to_texture(&palette);
-        let palette_texture_handle = load_context.set_labeled_asset(
-            "base_color_texture",
-            LoadedAsset::new(palette_texture)
-        );
+        let palette_texture_width = crate::material::material_textures_width(&palette) as u8;
 
-        load_context.set_labeled_asset("material", LoadedAsset::new(StandardMaterial {
-            base_color_texture: Some(palette_texture_handle),
-            ..StandardMaterial::default()
-        }));
+        crate::material::load_material(load_context, &palette, &file.materials);
 
         for (index, model) in file.models.iter().enumerate() {
             let (shape, buffer) = crate::voxel::load_from_model(model);
