@@ -14,7 +14,7 @@ exclude = ["assets/*"]
 bevy = "0.6"
 dot_vox = "4.1.0"
 ndshape = "0.2.0"
-block-mesh = { git = "https://github.com/bonsairobo/block-mesh-rs" }
+block-mesh = { version = "0.1.0", git = "https://github.com/bonsairobo/block-mesh-rs", rev = "ade165f2247a3bd847a44c46ae6f7c70976e46cc" }
 ndcopy = "0.2.0"
 anyhow = "1.0.38"
 num-integer = "0.1"
