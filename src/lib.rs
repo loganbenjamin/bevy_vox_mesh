@@ -38,6 +38,7 @@ use loader::VoxLoader;
 mod material;
 mod mesh;
 mod voxel;
+mod scene;
 
 /// The core plugin adding functionality for loading `.vox` files.
 ///

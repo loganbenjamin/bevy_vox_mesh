@@ -12,7 +12,7 @@ exclude = ["assets/*"]
 
 [dependencies]
 bevy = "0.7"
-dot_vox = "4.1.0"
+dot_vox = { version = "4.1.0", git = "https://github.com/davidedmonds/dot_vox", rev = "34c445cf7fd52c83d24e00d32366119d7a5928dc" }
 ndshape = "0.2.0"
 block-mesh = { version = "0.1.0", git = "https://github.com/bonsairobo/block-mesh-rs", rev = "ade165f2247a3bd847a44c46ae6f7c70976e46cc" }
 ndcopy = "0.2.0"

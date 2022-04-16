@@ -35,7 +35,7 @@ fn setup(
     commands.spawn_bundle(PbrBundle {
         transform: Transform::from_scale((0.01, 0.01, 0.01).into())
             * Transform::from_rotation(Quat::from_axis_angle(Vec3::Y, PI)),
-        mesh: assets.load("chicken.vox"),
+        mesh: assets.load("chicken.vox#model0"),
         material: assets.load("chicken.vox#material"),
         ..Default::default()
     });
@@ -46,8 +46,18 @@ fn setup(
             scale: Vec3::splat(0.16),
             ..Default::default()
         },
-        mesh: assets.load("materials.vox"),
+        mesh: assets.load("materials.vox#model0"),
         material: assets.load("materials.vox#material"),
         ..Default::default()
     });
+
+    commands
+        .spawn_bundle(TransformBundle::from(Transform {
+            translation: Vec3::new(-1.0, 0.0, 0.0),
+            scale: Vec3::splat(0.04),
+            ..Default::default()
+        }))
+        .with_children(|parent| {
+            parent.spawn_scene(assets.load("eggs.vox"));
+        });
 }

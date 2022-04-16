@@ -49,24 +49,20 @@ impl VoxLoader {
             .collect();
         let palette_texture_width = crate::material::material_textures_width(&palette) as u8;
 
-        crate::material::load_material(load_context, &palette, &file.materials);
+        let material = crate::material::load_material(load_context, &palette, &file.materials);
 
+        let mut meshes = Vec::new();
         for (index, model) in file.models.iter().enumerate() {
             let (shape, buffer) = crate::voxel::load_from_model(model);
             let mesh = crate::mesh::mesh_model(shape, &buffer, palette_texture_width, &self.config, self.v_flip_face);
 
-            match index {
-                0 => {
-                    load_context.set_default_asset(LoadedAsset::new(mesh));
-                }
-                _ => {
-                    load_context.set_labeled_asset(
-                        &format!("model{}", index),
-                        LoadedAsset::new(mesh),
-                    );
-                }
-            }
+            meshes.push(load_context.set_labeled_asset(
+                &format!("model{}", index),
+                LoadedAsset::new(mesh),
+            ));
         }
+
+        crate::scene::load_scene(load_context, material, &file.models, meshes, &file.scene);
 
         Ok(())
     }

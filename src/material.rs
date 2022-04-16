@@ -1,4 +1,4 @@
-use bevy::asset::{LoadContext, LoadedAsset};
+use bevy::asset::{Handle, LoadContext, LoadedAsset};
 use bevy::math::Vec4;
 use bevy::pbr::{AlphaMode, StandardMaterial};
 use bevy::render::{
@@ -19,7 +19,7 @@ pub(crate) fn material_textures_width(palette: &[[u8; 4]]) -> usize {
     palette.len().sqrt().next_power_of_two()
 }
 
-pub(crate) fn load_material(ctx: &mut LoadContext, palette: &[[u8; 4]], materials: &[Material]) {
+pub(crate) fn load_material(ctx: &mut LoadContext, palette: &[[u8; 4]], materials: &[Material]) -> Handle<StandardMaterial> {
     if !materials.is_empty() {
         assert_eq!(palette.len(), materials.len(), "Expected a material for every palette color");
     }
@@ -48,7 +48,7 @@ pub(crate) fn load_material(ctx: &mut LoadContext, palette: &[[u8; 4]], material
         emissive_texture: emissive_texture_handle,
         alpha_mode: if opaque { AlphaMode::Opaque } else { AlphaMode::Blend },
         ..StandardMaterial::default()
-    }));
+    }))
 }
 
 fn palette_texture(palette: &[[u8; 4]], materials: &[Material], texture_width: usize, texture_size: usize) -> (Image, bool) {
