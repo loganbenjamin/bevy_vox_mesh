@@ -11,7 +11,7 @@ exclude = ["assets/*"]
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-bevy = "0.6"
+bevy = "0.7"
 dot_vox = "4.1.0"
 ndshape = "0.2.0"
 block-mesh = { version = "0.1.0", git = "https://github.com/bonsairobo/block-mesh-rs", rev = "ade165f2247a3bd847a44c46ae6f7c70976e46cc" }
@@ -20,7 +20,7 @@ anyhow = "1.0.38"
 num-integer = "0.1"
 
 [dev-dependencies]
-bevy = "0.6"
+bevy = "0.7"
 
 [[example]]
 name = "render"

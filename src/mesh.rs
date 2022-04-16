@@ -53,16 +53,16 @@ pub(crate) fn mesh_model(
         }
     }
 
-    render_mesh.set_attribute(
+    render_mesh.insert_attribute(
         Mesh::ATTRIBUTE_POSITION,
         VertexAttributeValues::Float32x3(positions),
     );
 
-    render_mesh.set_attribute(
+    render_mesh.insert_attribute(
         Mesh::ATTRIBUTE_NORMAL,
         VertexAttributeValues::Float32x3(normals),
     );
-    render_mesh.set_attribute(Mesh::ATTRIBUTE_UV_0, VertexAttributeValues::Float32x2(uvs));
+    render_mesh.insert_attribute(Mesh::ATTRIBUTE_UV_0, VertexAttributeValues::Float32x2(uvs));
 
     render_mesh.set_indices(Some(Indices::U32(indices.clone())));
 
