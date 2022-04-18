@@ -69,8 +69,8 @@ fn traverse_scene(
                     let size = UVec3::new(model.size.x, model.size.z, model.size.y).as_vec3();
                     // `load_from_model` adds a 1-voxel border around the entire model, which we
                     // need to account for when calculating the pivot
-                    let pivot = dbg!((size / 2.0).floor() + 1.0);
-                    let translation =  dbg!(root_transform.mul_vec3(-pivot).floor());
+                    let pivot = (size / 2.0).floor() + 1.0;
+                    let translation = root_transform.mul_vec3(-pivot).floor();
                     builder.spawn_bundle(PbrBundle {
                         mesh: mesh.clone(),
                         material: material.clone(),
