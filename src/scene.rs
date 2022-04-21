@@ -14,9 +14,9 @@ const TRANSLATION: &str = "_t";
 pub(crate) fn load_scene(
     ctx: &mut LoadContext,
     material: Handle<StandardMaterial>,
-    models: &Vec<Model>,
-    meshes: Vec<Handle<Mesh>>,
-    scene: &Vec<SceneNode>,
+    models: &[Model],
+    meshes: &[Handle<Mesh>],
+    scene: &[SceneNode],
 ) {
     let mut world = World::default();
     if !scene.is_empty() {
@@ -26,7 +26,7 @@ pub(crate) fn load_scene(
             .with_children(|builder| {
                 let root = &scene[0];
                 let transform = Transform::identity();
-                traverse_scene(builder, scene, root, transform, models, &material, &meshes);
+                traverse_scene(builder, scene, root, transform, models, &material, meshes);
             });
     }
     ctx.set_default_asset(LoadedAsset::new(Scene::new(world)));
@@ -34,12 +34,12 @@ pub(crate) fn load_scene(
 
 fn traverse_scene(
     builder: &mut WorldChildBuilder,
-    scene: &Vec<SceneNode>,
+    scene: &[SceneNode],
     root: &SceneNode,
     root_transform: Transform,
-    models: &Vec<Model>,
+    models: &[Model],
     material: &Handle<StandardMaterial>,
-    meshes: &Vec<Handle<Mesh>>,
+    meshes: &[Handle<Mesh>],
 ) {
     match root {
         SceneNode::Transform { frames, child, .. } => {
@@ -88,12 +88,12 @@ fn traverse_scene(
     }
 }
 
-fn extract_translation(frame: &Vec<Dict>) -> Option<Vec3> {
+fn extract_translation(frame: &[Dict]) -> Option<Vec3> {
     frame
         .get(0)
         .and_then(|x| x.get(TRANSLATION))
         .and_then(|translation| {
-            let mut components = translation.split(" ");
+            let mut components = translation.split(' ');
             let x = components.next()?.parse::<f32>().ok()?;
             let y = components.next()?.parse::<f32>().ok()?;
             let z = components.next()?.parse::<f32>().ok()?;
@@ -109,7 +109,7 @@ fn extract_translation(frame: &Vec<Dict>) -> Option<Vec3> {
 }
 
 // Based on https://github.com/jpaver/opengametools/blob/master/src/ogt_vox.h#L821
-fn extract_rotation(frame: &Vec<Dict>) -> Option<Quat> {
+fn extract_rotation(frame: &[Dict]) -> Option<Quat> {
     frame
         .get(0)
         .and_then(|x| x.get(ROTATION))

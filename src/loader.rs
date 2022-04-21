@@ -62,7 +62,7 @@ impl VoxLoader {
             ));
         }
 
-        crate::scene::load_scene(load_context, material, &file.models, meshes, &file.scene);
+        crate::scene::load_scene(load_context, material, &file.models, &meshes, &file.scene);
 
         Ok(())
     }
