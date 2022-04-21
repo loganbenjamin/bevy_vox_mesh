@@ -42,9 +42,16 @@ pub(crate) fn mesh_model(
         .zip(quads_config.faces.as_ref())
     {
         for quad in group.iter() {
-            indices.extend_from_slice(&face.quad_mesh_indices(positions.len() as u32));
-            positions.extend_from_slice(&face.quad_mesh_positions(quad, 1.0));
-            normals.extend_from_slice(&face.quad_mesh_normals());
+            // we reverse x since MagicaVoxel's x axis is reversed
+            indices.extend_from_slice(&{
+                let mut next = face.quad_mesh_indices(positions.len() as u32);
+                next.swap(0, 2);
+                next.swap(3, 5);
+                next
+            });
+            let negate_x = |mut vec: [f32; 3]|  { vec[0] = -vec[0]; vec };
+            positions.extend_from_slice(&face.quad_mesh_positions(quad, 1.0).map(negate_x));
+            normals.extend_from_slice(&face.quad_mesh_normals().map(negate_x));
 
             let palette_index = buffer[buffer_shape.linearize(quad.minimum) as usize].0;
             let base_u = (palette_index % palette_texture_width) as f32 / (palette_texture_width as f32);

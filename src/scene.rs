@@ -69,7 +69,9 @@ fn traverse_scene(
                     let size = UVec3::new(model.size.x, model.size.z, model.size.y).as_vec3();
                     // `load_from_model` adds a 1-voxel border around the entire model, which we
                     // need to account for when calculating the pivot
-                    let pivot = (size / 2.0).floor() + 1.0;
+                    let mut pivot = (size / 2.0).floor() + 1.0;
+                    // we reverse x since MagicaVoxel's x axis is reversed
+                    pivot[0] = -pivot[0];
                     let translation = root_transform.mul_vec3(-pivot).floor();
                     builder.spawn_bundle(PbrBundle {
                         mesh: mesh.clone(),
@@ -97,7 +99,8 @@ fn extract_translation(frame: &Vec<Dict>) -> Option<Vec3> {
             let z = components.next()?.parse::<f32>().ok()?;
             if components.next() == None {
                 // we swizzle z and y since bevy is y-up
-                Some(Vec3::new(x, z, y))
+                // we reverse x since MagicaVoxel's x axis is reversed
+                Some(Vec3::new(-x, z, y))
             } else {
                 // there shouldn't be more than 3 components, bail
                 None
