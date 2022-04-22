@@ -71,7 +71,7 @@ fn traverse_scene(
                     // need to account for when calculating the pivot
                     let mut pivot = (size / 2.0).floor() + 1.0;
                     // we reverse x since MagicaVoxel's x axis is reversed
-                    pivot[0] = -pivot[0];
+                    pivot.x = -pivot.x;
                     let translation = root_transform.mul_vec3(-pivot).floor();
                     builder.spawn_bundle(PbrBundle {
                         mesh: mesh.clone(),
@@ -130,6 +130,10 @@ fn extract_rotation(frame: &[Dict]) -> Option<Quat> {
             mat.z_axis[index2 as usize] = negate_if(packed & (1 << 6));
 
             // we swizzle z and y since bevy is y-up
-            Some(Quat::from_vec4(Vec4::from(Quat::from_mat3(&mat)).xzyw()))
+            // we reverse every axis _except_ x to account for MagicaVoxel's x axis being reversed
+            let mut swizzled = Vec4::from(Quat::from_mat3(&mat)).xzyw();
+            swizzled.y = -swizzled.y;
+            swizzled.z = -swizzled.z;
+            Some(Quat::from_vec4(swizzled))
         })
 }
