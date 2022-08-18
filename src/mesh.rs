@@ -3,16 +3,16 @@ use bevy::render::{
     render_resource::PrimitiveTopology,
 };
 use block_mesh::{greedy_quads, GreedyQuadsBuffer, QuadCoordinateConfig};
-use ndshape::{Shape, Shape3u32};
+use ndshape::{RuntimeShape, Shape};
 
 use crate::voxel::Voxel;
 
 pub(crate) fn mesh_model(
-    buffer_shape: Shape3u32,
+    buffer_shape: RuntimeShape<u32, 3>,
     buffer: &[Voxel],
-    palette_texture_width: u8,
+    palette: &[[f32; 4]],
     quads_config: &QuadCoordinateConfig,
-    _v_flip_face: bool,
+    v_flip_face: bool,
 ) -> Mesh {
     let mut greedy_quads_buffer = GreedyQuadsBuffer::new(buffer_shape.size() as usize);
 
@@ -32,6 +32,7 @@ pub(crate) fn mesh_model(
     let mut positions = Vec::with_capacity(num_vertices);
     let mut normals = Vec::with_capacity(num_vertices);
     let mut uvs = Vec::with_capacity(num_vertices);
+    let mut colors = Vec::with_capacity(num_vertices);
 
     let mut render_mesh = Mesh::new(PrimitiveTopology::TriangleList);
 
@@ -50,13 +51,17 @@ pub(crate) fn mesh_model(
                 next
             });
             let negate_x = |mut vec: [f32; 3]|  { vec[0] = -vec[0]; vec };
-            positions.extend_from_slice(&face.quad_mesh_positions(quad, 1.0).map(negate_x));
+            positions.extend_from_slice(
+                &face
+                    .quad_mesh_positions(quad, 1.0)
+                    .map(|position| position.map(|x| x - 1.0)) // corrects the 1 offset introduced by the meshing.
+                    .map(negate_x),
+            );
             normals.extend_from_slice(&face.quad_mesh_normals().map(negate_x));
 
             let palette_index = buffer[buffer_shape.linearize(quad.minimum) as usize].0;
-            let base_u = (palette_index % palette_texture_width) as f32 / (palette_texture_width as f32);
-            let base_v = (palette_index / palette_texture_width) as f32 / (palette_texture_width as f32);
-            uvs.extend_from_slice(&[[base_u, base_v]; 4]);
+            colors.extend_from_slice(&[palette[palette_index as usize]; 4]);
+            uvs.extend_from_slice(&face.tex_coords(quads_config.u_flip_face, v_flip_face, quad));
         }
     }
 
@@ -70,6 +75,11 @@ pub(crate) fn mesh_model(
         VertexAttributeValues::Float32x3(normals),
     );
     render_mesh.insert_attribute(Mesh::ATTRIBUTE_UV_0, VertexAttributeValues::Float32x2(uvs));
+
+    render_mesh.insert_attribute(
+        Mesh::ATTRIBUTE_COLOR,
+        VertexAttributeValues::Float32x4(colors),
+    );
 
     render_mesh.set_indices(Some(Indices::U32(indices.clone())));
 

@@ -2,9 +2,8 @@ use bevy::asset::{Handle, LoadContext, LoadedAsset};
 use bevy::hierarchy::{BuildWorldChildren, WorldChildBuilder};
 use bevy::math::{Mat3, Quat, UVec3, Vec3, Vec4, Vec4Swizzles};
 use bevy::pbr::{PbrBundle, StandardMaterial};
-use bevy::prelude::{Mesh, Transform, World};
+use bevy::prelude::{Mesh, SpatialBundle, Transform, World};
 use bevy::scene::Scene;
-use bevy::transform::TransformBundle;
 use dot_vox::{Dict, Model, SceneNode};
 
 // constants used in magicavoxel's scene graph dictionaries
@@ -22,17 +21,18 @@ pub(crate) fn load_scene(
     if !scene.is_empty() {
         world
             .spawn()
-            .insert_bundle(TransformBundle::identity())
+            .insert_bundle(SpatialBundle::visible_identity())
             .with_children(|builder| {
                 let root = &scene[0];
                 let transform = Transform::identity();
-                traverse_scene(builder, scene, root, transform, models, &material, meshes);
+                traverse_scene(ctx, builder, scene, root, transform, models, &material, meshes);
             });
     }
     ctx.set_default_asset(LoadedAsset::new(Scene::new(world)));
 }
 
 fn traverse_scene(
+    ctx: &mut LoadContext,
     builder: &mut WorldChildBuilder,
     scene: &[SceneNode],
     root: &SceneNode,
@@ -51,13 +51,13 @@ fn traverse_scene(
                 };
                 let transform = root_transform * this_transform;
 
-                traverse_scene(builder, scene, child_root, transform, models, material, meshes);
+                traverse_scene(ctx, builder, scene, child_root, transform, models, material, meshes);
             }
         }
         SceneNode::Group { children, .. } => {
             for child in children {
                 if let Some(child_root) = scene.get(*child as usize) {
-                    traverse_scene(builder, scene, child_root, root_transform, models, material, meshes);
+                    traverse_scene(ctx, builder, scene, child_root, root_transform, models, material, meshes);
                 }
             }
         }
@@ -67,15 +67,13 @@ fn traverse_scene(
                 if let (Some(mesh), Some(model)) = (meshes.get(id), models.get(id)) {
                     // we swizzle z and y since bevy is y-up
                     let size = UVec3::new(model.size.x, model.size.z, model.size.y).as_vec3();
-                    // `load_from_model` adds a 1-voxel border around the entire model, which we
-                    // need to account for when calculating the pivot
-                    let mut pivot = (size / 2.0).floor() + 1.0;
+                    let mut pivot = (size / 2.0).floor();
                     // we reverse x since MagicaVoxel's x axis is reversed
                     pivot.x = -pivot.x;
                     let translation = root_transform.mul_vec3(-pivot).floor();
                     builder.spawn_bundle(PbrBundle {
-                        mesh: mesh.clone(),
-                        material: material.clone(),
+                        mesh: ctx.get_handle(mesh),
+                        material: ctx.get_handle(material),
                         transform: Transform {
                             translation,
                             ..root_transform
