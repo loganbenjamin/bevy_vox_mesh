@@ -20,12 +20,13 @@ pub(crate) fn load_scene(
     let mut world = World::default();
     if !scene.is_empty() {
         world
-            .spawn()
-            .insert_bundle(SpatialBundle::visible_identity())
+            .spawn(SpatialBundle::VISIBLE_IDENTITY)
             .with_children(|builder| {
                 let root = &scene[0];
-                let transform = Transform::identity();
-                traverse_scene(ctx, builder, scene, root, transform, models, &material, meshes);
+                let transform = Transform::IDENTITY;
+                traverse_scene(
+                    ctx, builder, scene, root, transform, models, &material, meshes,
+                );
             });
     }
     ctx.set_default_asset(LoadedAsset::new(Scene::new(world)));
@@ -51,17 +52,31 @@ fn traverse_scene(
                 };
                 let transform = root_transform * this_transform;
 
-                traverse_scene(ctx, builder, scene, child_root, transform, models, material, meshes);
+                traverse_scene(
+                    ctx, builder, scene, child_root, transform, models, material, meshes,
+                );
             }
         }
         SceneNode::Group { children, .. } => {
             for child in children {
                 if let Some(child_root) = scene.get(*child as usize) {
-                    traverse_scene(ctx, builder, scene, child_root, root_transform, models, material, meshes);
+                    traverse_scene(
+                        ctx,
+                        builder,
+                        scene,
+                        child_root,
+                        root_transform,
+                        models,
+                        material,
+                        meshes,
+                    );
                 }
             }
         }
-        SceneNode::Shape { models: shape_models, .. } => {
+        SceneNode::Shape {
+            models: shape_models,
+            ..
+        } => {
             for model in shape_models {
                 let id = model.model_id as usize;
                 if let (Some(mesh), Some(model)) = (meshes.get(id), models.get(id)) {
@@ -70,8 +85,8 @@ fn traverse_scene(
                     let mut pivot = (size / 2.0).floor();
                     // we reverse x since MagicaVoxel's x axis is reversed
                     pivot.x = -pivot.x;
-                    let translation = root_transform.mul_vec3(-pivot).floor();
-                    builder.spawn_bundle(PbrBundle {
+                    let translation = (root_transform * -pivot).floor();
+                    builder.spawn(PbrBundle {
                         mesh: ctx.get_handle(mesh),
                         material: ctx.get_handle(material),
                         transform: Transform {
@@ -119,7 +134,11 @@ fn extract_rotation(frame: &[Dict]) -> Option<Quat> {
 
             #[inline(always)]
             fn negate_if(x: u32) -> f32 {
-                if x == 0 { 1.0 } else { -1.0 }
+                if x == 0 {
+                    1.0
+                } else {
+                    -1.0
+                }
             }
 
             let mut mat = Mat3::ZERO;

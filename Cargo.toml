@@ -4,14 +4,21 @@ description = "A bevy engine plugin for loading magica voxel files directly in b
 license = "MIT"
 version = "0.4.0"
 repository = "https://github.com/Game4all/bevy_vox_mesh"
-authors = ["Lucas A. <game4allyt@gmail.com>", "Arc-blroth <45273859+Arc-blroth@users.noreply.github.com>"]
+authors = [
+    "Lucas A. <game4allyt@gmail.com>",
+    "Arc-blroth <45273859+Arc-blroth@users.noreply.github.com>",
+]
 edition = "2021"
 exclude = ["assets/*"]
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-bevy = { version = "0.8.0", default-features = false, features = ["render", "bevy_asset", "bevy_scene"] }
+bevy = { version = "0.9.1", default-features = false, features = [
+    "render",
+    "bevy_asset",
+    "bevy_scene",
+] }
 dot_vox = { version = "4.1.0", git = "https://github.com/dust-engine/dot_vox", rev = "f04793a1a82532f852647745037d22e8cb7bfe1c" }
 ndshape = "0.3.0"
 block-mesh = "0.2.0"
@@ -19,8 +26,10 @@ ndcopy = "0.3.0"
 anyhow = "1.0.38"
 
 [dev-dependencies]
-bevy = { version = "0.8.0", default-features = false, features = ["bevy_winit"] }
-bevy_flycam = "0.8.1"
+bevy = { version = "0.9.1", default-features = false, features = [
+    "bevy_winit",
+] }
+bevy_flycam = "0.8.0"
 
 [[example]]
 name = "render"
