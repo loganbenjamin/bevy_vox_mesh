@@ -1,4 +1,7 @@
 
+# Mod
+This mod adds the ability to convert rgb/srgb palette to linear when loading the palette from the vox file.
+
 <h1>
 <code>bevy_vox_mesh</code>
 </h1>
