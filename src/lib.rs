@@ -31,8 +31,8 @@ use loader::VoxLoader;
 
 mod material;
 mod mesh;
-mod voxel;
 mod scene;
+mod voxel;
 
 /// The core plugin adding functionality for loading `.vox` files.
 ///
@@ -40,6 +40,7 @@ mod scene;
 pub struct VoxMeshPlugin {
     config: QuadCoordinateConfig,
     v_flip_faces: bool,
+    convert_rgb_to_linear: bool,
 }
 
 impl VoxMeshPlugin {
@@ -47,17 +48,22 @@ impl VoxMeshPlugin {
     ///
     /// # Arguments
     /// * `config` - The quad coordinates configuration ([`QuadCoordinateConfig`]) to use when meshing models.
-    pub fn with_options(config: QuadCoordinateConfig, v_flip_faces: bool) -> Self {
+    pub fn with_options(
+        config: QuadCoordinateConfig,
+        v_flip_faces: bool,
+        convert_rgb_to_linear: bool,
+    ) -> Self {
         Self {
             config,
             v_flip_faces,
+            convert_rgb_to_linear,
         }
     }
 }
 
 impl Default for VoxMeshPlugin {
     fn default() -> Self {
-        Self::with_options(RIGHT_HANDED_Y_UP_CONFIG, true)
+        Self::with_options(RIGHT_HANDED_Y_UP_CONFIG, true, false)
     }
 }
 
@@ -66,6 +72,7 @@ impl Plugin for VoxMeshPlugin {
         app.add_asset_loader(VoxLoader {
             config: self.config.clone(),
             v_flip_face: self.v_flip_faces,
+            convert_rgb_to_linear: self.convert_rgb_to_linear,
         });
     }
 }

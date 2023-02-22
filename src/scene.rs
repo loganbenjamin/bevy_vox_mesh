@@ -85,7 +85,7 @@ fn traverse_scene(
                     let mut pivot = (size / 2.0).floor();
                     // we reverse x since MagicaVoxel's x axis is reversed
                     pivot.x = -pivot.x;
-                    let translation = (root_transform * -pivot).floor();
+                    let translation = root_transform.transform_point(-pivot).floor();
                     builder.spawn(PbrBundle {
                         mesh: ctx.get_handle(mesh),
                         material: ctx.get_handle(material),

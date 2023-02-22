@@ -1,5 +1,8 @@
 use anyhow::{anyhow, Error};
-use bevy::asset::{AssetLoader, LoadContext, LoadedAsset};
+use bevy::{
+    asset::{AssetLoader, LoadContext, LoadedAsset},
+    prelude::Color,
+};
 use block_mesh::QuadCoordinateConfig;
 
 /// An asset loader capable of loading models in `.vox` files as usable [`bevy::render::mesh::Mesh`]es.
@@ -12,6 +15,7 @@ pub struct VoxLoader {
     /// You may want to change this to false if you aren't using Vulkan as a graphical backend for bevy , else this should default to true.
     pub(crate) config: QuadCoordinateConfig,
     pub(crate) v_flip_face: bool,
+    pub(crate) convert_rgb_to_linear: bool,
 }
 
 impl AssetLoader for VoxLoader {
@@ -45,7 +49,15 @@ impl VoxLoader {
         let palette: Vec<[f32; 4]> = file
             .palette
             .iter()
-            .map(|color| color.to_le_bytes().map(|byte| byte as f32 / u8::MAX as f32))
+            .map(|color| {
+                let rgba = color.to_le_bytes().map(|byte| byte as f32 / u8::MAX as f32);
+
+                if self.convert_rgb_to_linear {
+                    Color::rgba(rgba[0], rgba[1], rgba[2], rgba[3]).as_linear_rgba_f32()
+                } else {
+                    rgba
+                }
+            })
             .collect();
 
         let material = crate::material::load_material(load_context, &palette, &file.materials);
@@ -53,12 +65,12 @@ impl VoxLoader {
         let mut meshes = Vec::new();
         for (index, model) in file.models.iter().enumerate() {
             let (shape, buffer) = crate::voxel::load_from_model(model);
-            let mesh = crate::mesh::mesh_model(shape, &buffer, &palette, &self.config, self.v_flip_face);
+            let mesh =
+                crate::mesh::mesh_model(shape, &buffer, &palette, &self.config, self.v_flip_face);
 
-            meshes.push(load_context.set_labeled_asset(
-                &format!("model{}", index),
-                LoadedAsset::new(mesh),
-            ));
+            meshes.push(
+                load_context.set_labeled_asset(&format!("model{}", index), LoadedAsset::new(mesh)),
+            );
         }
 
         crate::scene::load_scene(load_context, material, &file.models, &meshes, &file.scene);
