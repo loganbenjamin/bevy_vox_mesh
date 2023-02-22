@@ -1,6 +1,6 @@
 
 # Mod
-This mod adds the ability to convert rgb/srgb palette to linear when loading the palette from the vox file.
+This mod adds the ability to convert rgb/srgb palette to linear rgb.
 
 <h1>
 <code>bevy_vox_mesh</code>
@@ -28,7 +28,7 @@ A plugin for the bevy engine which allows loading magica voxel `.vox` files dire
 ```rust
 
 use bevy::prelude::*;
-use bevy_vox_mesh::VoxMeshPlugin;
+use bevy_vox_mesh::VsoxMeshPlugin;
 use std::f32::consts::PI;
 
 fn main() {
