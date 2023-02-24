@@ -7,6 +7,7 @@ use bevy::scene::Scene;
 use dot_vox::{Dict, Model, SceneNode};
 
 // constants used in magicavoxel's scene graph dictionaries
+const NAME: &str = "_name";
 const ROTATION: &str = "_r";
 const TRANSLATION: &str = "_t";
 
@@ -101,7 +102,33 @@ fn traverse_scene(
     }
 }
 
-fn extract_translation(frame: &[Dict]) -> Option<Vec3> {
+pub(crate) fn extract_name(model_id: usize, scenes: &[SceneNode]) -> Option<String> {
+    let model_id = model_id as u32;
+
+    for (i, scene) in scenes.iter().enumerate() {
+        match scene {
+            dot_vox::SceneNode::Shape { models, .. } => {
+                if !models.iter().any(|model| model.model_id == model_id) {
+                    continue;
+                }
+            }
+            _ => continue,
+        };
+
+        match &scenes.get(i - 1) {
+            Some(dot_vox::SceneNode::Transform { attributes, .. }) => match attributes.get("_name")
+            {
+                Some(name) => return Some(name.clone()),
+                None => continue,
+            },
+            _ => continue,
+        };
+    }
+
+    None
+}
+
+pub(crate) fn extract_translation(frame: &[Dict]) -> Option<Vec3> {
     frame
         .get(0)
         .and_then(|x| x.get(TRANSLATION))
@@ -122,7 +149,7 @@ fn extract_translation(frame: &[Dict]) -> Option<Vec3> {
 }
 
 // Based on https://github.com/jpaver/opengametools/blob/master/src/ogt_vox.h#L821
-fn extract_rotation(frame: &[Dict]) -> Option<Quat> {
+pub(crate) fn extract_rotation(frame: &[Dict]) -> Option<Quat> {
     frame
         .get(0)
         .and_then(|x| x.get(ROTATION))
