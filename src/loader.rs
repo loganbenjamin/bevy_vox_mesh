@@ -74,6 +74,8 @@ impl VoxLoader {
                 crate::mesh::mesh_model(shape, &buffer, &palette, &self.config, self.v_flip_face);
 
             if let Some(name) = extract_name(index, &file.scene) {
+                let mut mesh = mesh.clone();
+
                 meshes.push(
                     load_context.set_labeled_asset(
                         &format!("model-{name}"),

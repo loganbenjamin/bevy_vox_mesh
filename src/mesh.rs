@@ -36,6 +36,10 @@ pub(crate) fn mesh_model(
 
     let mut render_mesh = Mesh::new(PrimitiveTopology::TriangleList);
 
+    let offset_center = buffer_shape
+        .as_array()
+        .map(|p| ((p - 2) as f32 * 0.5).floor());
+
     for (group, face) in greedy_quads_buffer
         .quads
         .groups
@@ -50,13 +54,27 @@ pub(crate) fn mesh_model(
                 next.swap(3, 5);
                 next
             });
-            let negate_x = |mut vec: [f32; 3]|  { vec[0] = -vec[0]; vec };
+
+            let translate_x = |mut vec: [f32; 3]| {
+                vec[0] = vec[0] - offset_center[0];
+                vec[1] = vec[1] - offset_center[1];
+                vec[2] = vec[2] - offset_center[2];
+                vec[0] = -vec[0];
+                vec
+            };
+
+            let negate_x = |mut vec: [f32; 3]| {
+                vec[0] = -vec[0];
+                vec
+            };
+
             positions.extend_from_slice(
                 &face
                     .quad_mesh_positions(quad, 1.0)
                     .map(|position| position.map(|x| x - 1.0)) // corrects the 1 offset introduced by the meshing.
-                    .map(negate_x),
+                    .map(translate_x),
             );
+
             normals.extend_from_slice(&face.quad_mesh_normals().map(negate_x));
 
             let palette_index = buffer[buffer_shape.linearize(quad.minimum) as usize].0;
