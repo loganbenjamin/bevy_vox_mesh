@@ -102,10 +102,15 @@ fn traverse_scene(
     }
 }
 
-pub(crate) fn extract_name(model_id: usize, scenes: &[SceneNode]) -> Option<String> {
+pub(crate) fn extract_model_attributes(
+    model_id: usize,
+    scenes: &[SceneNode],
+) -> (Option<String>, Option<Vec3>) {
     let model_id = model_id as u32;
 
     for (i, scene) in scenes.iter().enumerate() {
+        let child_id = i as u32;
+
         match scene {
             dot_vox::SceneNode::Shape { models, .. } => {
                 if !models.iter().any(|model| model.model_id == model_id) {
@@ -115,17 +120,29 @@ pub(crate) fn extract_name(model_id: usize, scenes: &[SceneNode]) -> Option<Stri
             _ => continue,
         };
 
-        match &scenes.get(i - 1) {
-            Some(dot_vox::SceneNode::Transform { attributes, .. }) => match attributes.get("_name")
-            {
-                Some(name) => return Some(name.clone()),
-                None => continue,
-            },
+        match scenes.iter().find_map(|scene| match scene {
+            SceneNode::Transform {
+                child,
+                attributes,
+                frames,
+            } => (*child == child_id).then_some((attributes, frames)),
+            _ => None,
+        }) {
+            Some((attributes, frames)) => {
+                return (extract_name(attributes), extract_translation(frames))
+            }
             _ => continue,
-        };
+        }
     }
 
-    None
+    (None, None)
+}
+
+pub(crate) fn extract_name(attributes: &Dict) -> Option<String> {
+    match attributes.get(NAME) {
+        Some(name) => return Some(name.clone()),
+        None => None,
+    }
 }
 
 pub(crate) fn extract_translation(frame: &[Dict]) -> Option<Vec3> {

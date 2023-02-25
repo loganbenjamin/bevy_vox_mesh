@@ -19,24 +19,24 @@ fn setup(
     assets: Res<AssetServer>,
 ) {
     commands
-        .spawn_bundle(Camera3dBundle {
+        .spawn(Camera3dBundle {
             transform: Transform::from_xyz(-2.0, 2.5, 5.0).looking_at(Vec3::ZERO, Vec3::Y),
             ..Default::default()
         })
         .insert(FlyCam);
 
-    commands.spawn_bundle(PointLightBundle {
+    commands.spawn(PointLightBundle {
         transform: Transform::from_xyz(4.0, 8.0, 4.0),
         ..Default::default()
     });
 
-    commands.spawn_bundle(PbrBundle {
+    commands.spawn(PbrBundle {
         mesh: meshes.add(Mesh::from(shape::Plane { size: 5.0 })),
         material: stdmats.add(Color::rgb(0.3, 0.5, 0.3).into()),
         ..Default::default()
     });
 
-    commands.spawn_bundle(PbrBundle {
+    commands.spawn(PbrBundle {
         transform: Transform::from_scale((0.01, 0.01, 0.01).into())
             * Transform::from_rotation(Quat::from_axis_angle(Vec3::Y, PI)),
         mesh: assets.load("roads.vox#model0"),
@@ -44,7 +44,7 @@ fn setup(
         ..Default::default()
     });
 
-    commands.spawn_bundle(PbrBundle {
+    commands.spawn(PbrBundle {
         transform: Transform::from_scale((0.01, 0.01, 0.01).into())
             * Transform::from_rotation(Quat::from_axis_angle(Vec3::Y, PI)),
         mesh: assets.load("chicken.vox#model0"),
@@ -52,7 +52,7 @@ fn setup(
         ..Default::default()
     });
 
-    commands.spawn_bundle(PbrBundle {
+    commands.spawn(PbrBundle {
         transform: Transform {
             translation: Vec3::new(0.0, 0.0, 1.0),
             scale: Vec3::splat(0.16),
@@ -63,7 +63,7 @@ fn setup(
         ..Default::default()
     });
 
-    commands.spawn_bundle(SceneBundle {
+    commands.spawn(SceneBundle {
         transform: Transform {
             translation: Vec3::new(-1.0, 0.0, 0.0),
             scale: Vec3::splat(0.04),

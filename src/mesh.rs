@@ -1,6 +1,9 @@
-use bevy::render::{
-    mesh::{Indices, Mesh, VertexAttributeValues},
-    render_resource::PrimitiveTopology,
+use bevy::{
+    prelude::Vec3,
+    render::{
+        mesh::{Indices, Mesh, VertexAttributeValues},
+        render_resource::PrimitiveTopology,
+    },
 };
 use block_mesh::{greedy_quads, GreedyQuadsBuffer, QuadCoordinateConfig};
 use ndshape::{RuntimeShape, Shape};
@@ -13,6 +16,7 @@ pub(crate) fn mesh_model(
     palette: &[[f32; 4]],
     quads_config: &QuadCoordinateConfig,
     v_flip_face: bool,
+    translate: Option<Vec3>,
 ) -> Mesh {
     let mut greedy_quads_buffer = GreedyQuadsBuffer::new(buffer_shape.size() as usize);
 
@@ -36,9 +40,18 @@ pub(crate) fn mesh_model(
 
     let mut render_mesh = Mesh::new(PrimitiveTopology::TriangleList);
 
-    let offset_center = buffer_shape
+    let translate_center = buffer_shape
         .as_array()
         .map(|p| ((p - 2) as f32 * 0.5).floor());
+
+    let translate = match translate {
+        Some(translate) => [
+            translate[0] - translate_center[0],
+            translate[1] - translate_center[1],
+            translate[2] - translate_center[2],
+        ],
+        None => translate_center,
+    };
 
     for (group, face) in greedy_quads_buffer
         .quads
@@ -56,15 +69,15 @@ pub(crate) fn mesh_model(
             });
 
             let translate_x = |mut vec: [f32; 3]| {
-                vec[0] = vec[0] - offset_center[0];
-                vec[1] = vec[1] - offset_center[1];
-                vec[2] = vec[2] - offset_center[2];
-                vec[0] = -vec[0];
+                vec[0] = vec[0] + translate[0];
+                vec[1] = vec[1] + translate[1];
+                vec[2] = vec[2] + translate[2];
+                vec[2] = -vec[2];
                 vec
             };
 
-            let negate_x = |mut vec: [f32; 3]| {
-                vec[0] = -vec[0];
+            let negate_z = |mut vec: [f32; 3]| {
+                vec[2] = -vec[2];
                 vec
             };
 
@@ -75,7 +88,7 @@ pub(crate) fn mesh_model(
                     .map(translate_x),
             );
 
-            normals.extend_from_slice(&face.quad_mesh_normals().map(negate_x));
+            normals.extend_from_slice(&face.quad_mesh_normals().map(negate_z));
 
             let palette_index = buffer[buffer_shape.linearize(quad.minimum) as usize].0;
             colors.extend_from_slice(&[palette[palette_index as usize]; 4]);
